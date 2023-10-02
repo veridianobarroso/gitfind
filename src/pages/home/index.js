@@ -15,6 +15,18 @@ function App() {
     const userData = await fetch(`https://api.github.com/users/${user}`);
     const newUser = await userData.json();
 
+    if(newUser.name){
+      const {avatar_url, name, bio,login} = newUser;
+      setCurrentUser({avatar_url,name,bio,login});
+      
+      const reposData = await fetch(`https://api.github.com/users/${user}/repos`);
+      const newRepos = await reposData.json();
+
+      if(newRepos.length){
+        setRepos(newRepos);
+      }
+    }
+
     console.log(newUser);
   }
 
@@ -28,26 +40,34 @@ function App() {
             <input name='usuario' value={user} onChange={event => setUser(event.target.value)} placeholder='@username'/>
             <button onClick={handleGetData}>Buscar</button>
           </div>
+
+          {currentUser?.name ? (<> 
           <div className='perfil'>
-            <img src='https://avatars.githubusercontent.com/u/5331264?v=4' className='profile' alt='Imagem' />
+            <img src={currentUser.avatar_url} className='profile' alt='Imagem' />
             <div>
               <h3>
-                Veridiano Barroso
+                {currentUser.name}
               </h3>
               <span>
-                @veridianobarroso
+              @{currentUser.login}
               </span>
-              <p>Descrição</p>
+              <p>{currentUser.bio}</p>
             </div>
           </div>
-          <hr></hr>
+          </>) : null} 
 
+          
+          {repos?.length ? (<> 
+            <hr></hr>
           <div>
             <h4 className='repositorio'>Repositórios</h4>
-            <ItemList title='teste1' description='teste1'></ItemList>
-            <ItemList title='teste1' description='teste1'></ItemList>
-            <ItemList title='teste1' description='teste1'></ItemList>
-          </div>
+            {repos.map(repo => (
+              <ItemList title={repo.name} description={repo.description}></ItemList>
+            ))}
+   
+          </div>          
+          </>) : null}
+
         </div>
         
       </div>
